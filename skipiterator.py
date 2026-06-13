@@ -1,4 +1,6 @@
-    """
+#skip : 1 skip, 2 store (in skip map)
+#advance : 1 update nextEl ie self.nextEl = curr, 2 reduce skip count(in skip map)
+"""
 1) advance()
 → pick next valid number
 → set nextEl
@@ -51,37 +53,34 @@ else
     # nextEl = 6
 from collections import defaultdict
 class SkipIterator:
+    #initialise DSs
     def __init__(self, it):
-        self.nums = it  # Store nums
+        self.nums = it  # Store nums: it = iter([5, 5, 2, 5, 6])
         self.i = 0  # Walking pointer
-        self.skipMap = defaultdict(int)
+        self.skipMap = {}
         self.nextEl = None
         # Preload first valid element
         self.advance()
 
 
     def advance(self):
-        # local aliases
         nums = self.nums
         skipMap = self.skipMap
-        i = self.i
         # reset current valid num
         self.nextEl = None
         while i < len(nums):  #1) if curr is in skipmap 2)else
-            curr = nums[i]
+            curr = nums[self.i]
             i += 1
-            # curr is not in skipmap: update nextEl
+            # case1: curr is not in skipmap: update nextEl
             if skipMap[curr] == 0:
                 self.nextEl = curr
                 break
-            # skip num
+            # case2: skip num
             else:
                 skipMap[curr] -= 1
                 # {5:0} -> {}
                 if skipMap[curr] == 0:
                     del skipMap[curr]
-        # update pointer back
-        self.i = i
 
                   
     def hasNext(self):
@@ -93,10 +92,9 @@ class SkipIterator:
         return toreturn
 
     def skip(self, num_to_skip):
-        # nextEl = 5: skip(5) -> advance immediately
         curr = self.nextEl
-        if num_to_skip == curr:
+        if num_to_skip == curr:  #case1: skip
             self.advance()
         # Future skip: nextEl = 2, skip(5) -> {5:1}
-        else:
+        else:  #case2: action ie reduce skip count
             self.skipMap[num_to_skip] += 1
